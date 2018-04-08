@@ -1,0 +1,23 @@
+language: go
+services:
+  - docker
+jobs:
+ include:
+  - stage: push_image
+    install:
+      - docker build . -t yassine-alpine-gobetween
+      - docker tag yassine-alpine-gobetween $DOCKER_USERNAME/alpine-gobetween:$(cat ./VERSION)
+    script:
+      - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+      - docker push $DOCKER_USERNAME/alpine-gobetween:$(cat ./VERSION)
+  - stage: push_latest_image
+    install:
+      - docker build . -t yassine-alpine-gobetween
+      - docker tag yassine-alpine-gobetween $DOCKER_USERNAME/alpine-gobetween:latest
+    script:
+      - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+      - docker push $DOCKER_USERNAME/alpine-gobetween:latest
+stages:
+  - push_image
+  - name: push_latest_image
+    if: branch = master
